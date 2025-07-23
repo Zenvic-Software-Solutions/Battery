@@ -6,13 +6,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
 
     $stmt = $conn->prepare("
         SELECT s.*, 
-               CASE 
-                   WHEN s.client_type = 'Customer' THEN cu.name 
-                   ELSE r.name 
-               END AS client_name
+               p.name AS product_name,
+               c.name AS category_name 
         FROM sales s
-        LEFT JOIN customer cu ON s.client_type = 'Customer' AND s.client_id = cu.id
-        LEFT JOIN retailer r ON s.client_type = 'Retailer' AND s.client_id = r.id
+        LEFT JOIN product p ON s.product_id = p.id
+        LEFT JOIN category c ON p.cat_id = c.id
         WHERE s.id = ? AND s.status = 'Active'
     ");
     $stmt->bind_param("i", $sales_id);
@@ -27,19 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
 
     $details = [];
     $query = "
-        SELECT 
-            sd.product_id,
-            sd.unit_price AS rate,
-            sd.quantity AS qty,
-            sd.total_price AS amount,
-            p.name AS product_name,
-            p.product_code,
-            c.name AS category_name,
-            p.cat_id AS category_id
-        FROM sales_details sd
-        JOIN product p ON sd.product_id = p.id
-        JOIN category c ON p.cat_id = c.id
-        WHERE sd.sales_id = ? AND sd.status = 'Active'
+        SELECT id, refill_date, amount, notes
+        FROM refill_history
+        WHERE sales_id = ? AND status = 'Active'
+        ORDER BY refill_date DESC
     ";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $sales_id);
@@ -48,32 +37,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
 
     while ($row = $result->fetch_assoc()) {
         $details[] = [
-            'product_id'     => $row['product_id'],
-            'product_name'   => ' <span class="badge bg-secondary-subtle text-secondary fs-6">' . $row['product_code'] . '</span> ' . $row['product_name'],
-            'category_id'    => $row['category_id'],
-            'category_name'  => $row['category_name'],
-            'rate'           => $row['rate'],
-            'qty'            => $row['qty'],
-            'amount'         => $row['amount']
+            'refill_id'     => $row['id'],
+            'refill_date'   => date('d M, Y', strtotime($row['refill_date'])),
+            'amount'        => $row['amount'],
+            'notes'         => $row['notes']
         ];
     }
     $stmt->close();
 
     // Return JSON
     echo json_encode([
-        'invoice_no'           => $salesResult['invoice_no'],
-        'client_id'            => $salesResult['client_id'],
-        'client_type'          => $salesResult['client_type'],
-        'client_name'          => $salesResult['client_name'],
-        'date'                 => date('d M, Y', strtotime($salesResult['date'])),
-        'gst_percentage'       => $salesResult['gst_percentage'],
-        'discount'             => $salesResult['discount'],
-        'subtotal'             => $salesResult['sub_total'],
-        'discounted_subtotal'  => $salesResult['new_subtotal'],
-        'tax'                  => $salesResult['gst_amount'],
-        'total'                => $salesResult['total_amount'],
-        'notes'                => $salesResult['notes'],
-        'products'             => $details
+        'product'           => $salesResult['product_name'],
+        'category'          => $salesResult['category_name'],
+        'sales_date'        => date('d M, Y', strtotime($salesResult['sale_date'])),
+        'refill_date'       => date('d M, Y', strtotime($salesResult['next_refill_date'])),
+        'customer_name'     => $salesResult['customer_name'],
+        'customer_phone'    => $salesResult['customer_phone'],
+        'customer_address'  => $salesResult['customer_address'],
+        'customer_rate'     => $salesResult['rate'],
+        'current_status'    => $salesResult['current_status'],
+        'status_notes'      => $salesResult['notes'],
+        'refill'            => $details
     ]);
 }
 ?>
