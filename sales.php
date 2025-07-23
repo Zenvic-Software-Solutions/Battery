@@ -411,6 +411,52 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                             </div>
                         </div>
                     </div>
+
+                    <!-- Change Sales Status Form Section -->
+                    <div class="modal fade" id="changeSalesModal" tabindex="-1" aria-labelledby="changeSalesLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <form id="changeSalesForm" class="row g-3 needs-validation" novalidate>
+                                <input type="hidden" name="saleId" id="change-sales-id">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Change Sales Status</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="change-sales-status" class="form-label">Current Sales Status</label>
+                                            <select class="form-control" name="sales_status" id="change-sales-status" required>
+                                                <option value="Active">Active</option>
+                                                <option value="Broken">Broken</option>
+                                                <option value="Self-refill">Self-refill</option>
+                                                <option value="Replaced">Replaced</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Customer Address -->
+                                        <div class="mb-3">
+                                            <label for="change-sales-notes" class="form-label">Notes</label>
+                                            <textarea class="form-control" name="sales_notes" id="change-sales-notes" rows="3"></textarea>
+                                            <div class="invalid-feedback">
+                                                Please enter sales notes.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger btn-label right rounded-pill" data-bs-dismiss="modal">
+                                            <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 ms-2"></i>
+                                            Cancel
+                                        </button>
+                                        <button type="submit" class="btn btn-success btn-label right rounded-pill" id="changeSalesBtn">
+                                            <i class="ri-save-line label-icon align-middle rounded-pill fs-16 ms-2"></i>
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 
                 </div>
                 <!-- container-fluid -->
@@ -648,6 +694,16 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
             });
         }
 
+        function changeStatus(salesId, currentStatus, notes) {
+            $('#changeSalesForm')[0].reset();
+            $('#changeSalesForm').removeClass('was-validated');
+            $('#changeSalesBtn').prop('disabled', false);
+            $('#change-sales-id').val(salesId);
+            $('#change-sales-status').val(currentStatus);
+            $('#change-sales-notes').val(notes);
+            $('#changeSalesModal').modal('show');
+        }
+
     </script>
 
     <script>
@@ -876,6 +932,46 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                         },
                     complete: function () {
                         $('#updateSalesBtn').prop('disabled', false);
+                    }
+                });
+            });
+
+            $('#changeSalesForm').off('submit').on('submit', function (e) {
+                e.preventDefault();
+
+                if (!this.checkValidity()) {
+                    this.classList.add('was-validated');
+                    return;
+                }
+
+                const $submitBtn = $('#changeSalesBtn'); 
+                $submitBtn.prop('disabled', true);
+
+                let formData = new FormData(this);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'action/sales/change_status.php',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        let icon = response.status === 'success' ? 'success' : 'error';
+                        let title = response.status === 'success' ? 'Success!' : 'Error';
+
+                        Swal.fire({
+                            icon: icon,
+                            title: title,
+                            text: response.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        $('#changeSalesModal').modal('hide');
+                        $('#sales').DataTable().ajax.reload(null, false);
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Failed to change sales status', 'error');
                     }
                 });
             });

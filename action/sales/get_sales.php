@@ -9,7 +9,7 @@ $searchValue = trim($_POST['search']['value'] ?? '');
 // Base SELECT with joins
 $selectBase = "
     SELECT 
-        s.id, s.sale_date, s.rate, s.customer_name, s.customer_phone, s.next_refill_date, s.current_status, p.name
+        s.id, s.sale_date, s.rate, s.customer_name, s.customer_phone, s.next_refill_date, s.current_status, p.name, s.notes
     FROM sales s
     LEFT JOIN product p ON p.id = s.product_id
     WHERE s.status = 'Active'
@@ -68,6 +68,9 @@ while ($row = mysqli_fetch_assoc($dataQuery)) {
             </button>
             <button class="btn p-0 border-0 bg-transparent" onclick="deleteSales(' . $row['id'] . ')" title="Delete">
                 <i class="mdi mdi-delete fs-4 text-danger"></i>
+            </button>
+            <button class="btn p-0 border-0 bg-transparent" onclick="changeStatus(' . $row['id'] . ', \'' . $row['current_status'] . '\', `' . addslashes($row['notes']) . '`)" title="Change Status">
+                <i class="mdi mdi-sync fs-4 text-info"></i>
             </button>'
     ];
 }
