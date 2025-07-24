@@ -120,6 +120,7 @@ if (isset($_SESSION['user_id'])) {
     <script src="assets/js/pages/particles.app.js"></script>
     <!-- password-addon init -->
     <script src="assets/js/pages/password-addon.init.js"></script>
+    <script src="assets/js/main.js"></script>
     <script>
         setTimeout(function () {
             const alert = document.getElementById('loginErrorAlert');
