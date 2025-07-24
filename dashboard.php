@@ -5,6 +5,10 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
     header("Location: index.php");
     exit();
 }
+
+include 'dashboard_fetch.php';
+
+$dashboardData = getDashboardData($conn);
 ?>
 <!doctype html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
@@ -46,7 +50,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                             </span>
                                         </div>
                                     </div>
-                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="todayRefills" data-target="0"></span></h4>
+                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="todayRefills" class="counter-value" data-target="<?php echo $dashboardData['todayRefills']; ?>"></span></h4>
                                 </div>
                             </div>
                         </div>
@@ -65,7 +69,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                             </span>
                                         </div>
                                     </div>
-                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="pendingRefills" data-target="0"></span></h4>
+                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="pendingRefills" class="counter-value" data-target="<?php echo $dashboardData['pendingRefills']; ?>"></span></h4>
                                 </div>
                             </div>
                         </div>
@@ -84,7 +88,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                             </span>
                                         </div>
                                     </div>
-                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="upcomingRefills" data-target="0"></span></h4>
+                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="upcomingRefills" class="counter-value" data-target="<?php echo $dashboardData['upcomingRefills']; ?>"></span></h4>
                                 </div>
                             </div>
                         </div>
@@ -103,7 +107,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                             </span>
                                         </div>
                                     </div>
-                                    <h4 class="fs-22 fw-semibold ff-secondary">₹<span id="totalRefillAmount" class="counter-value" data-target="0"></span></h4>
+                                    <h4 class="fs-22 fw-semibold ff-secondary">₹ <span id="totalRefillAmount" class="counter-value" data-target="<?php echo $dashboardData['totalRefillAmount']; ?>"></span></h4>
                                 </div>
                             </div>
                         </div>
@@ -124,7 +128,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                             </span>
                                         </div>
                                     </div>
-                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="monthSales" data-target="0"></span></h4>
+                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="monthSales" class="counter-value" data-target="<?php echo $dashboardData['monthSales']; ?>"></span></h4>
                                 </div>
                             </div>
                         </div>
@@ -143,7 +147,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                             </span>
                                         </div>
                                     </div>
-                                    <h4 class="fs-22 fw-semibold ff-secondary">₹<span id="monthIncome" class="counter-value" data-target="0"></span></h4>
+                                    <h4 class="fs-22 fw-semibold ff-secondary">₹ <span id="monthIncome" class="counter-value" data-target="<?php echo $dashboardData['monthIncome']; ?>"></span></h4>
                                 </div>
                             </div>
                         </div>
@@ -162,7 +166,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                             </span>
                                         </div>
                                     </div>
-                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="totalSales" data-target="0"></span></h4>
+                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="totalSales" class="counter-value" data-target="<?php echo $dashboardData['totalSales']; ?>"></span></h4>
                                 </div>
                             </div>
                         </div>
@@ -181,7 +185,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                             </span>
                                         </div>
                                     </div>
-                                    <h4 class="fs-22 fw-semibold ff-secondary">₹<span id="totalIncome" class="counter-value" data-target="0"></span></h4>
+                                    <h4 class="fs-22 fw-semibold ff-secondary">₹ <span id="totalIncome" class="counter-value" data-target="<?php echo $dashboardData['totalIncome']; ?>"></span></h4>
                                 </div>
                             </div>
                         </div>
@@ -202,7 +206,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                             </span>
                                         </div>
                                     </div>
-                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="totalCategory" data-target="0"></span></h4>
+                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="totalCategory" class="counter-value" data-target="<?php echo $dashboardData['totalCategory']; ?>"></span></h4>
                                 </div>
                             </div>
                         </div>
@@ -221,7 +225,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                             </span>
                                         </div>
                                     </div>
-                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="totalProducts" data-target="0"></span></h4>
+                                    <h4 class="fs-22 fw-semibold ff-secondary"><span id="totalProducts" class="counter-value" data-target="<?php echo $dashboardData['totalProducts']; ?>"></span></h4>
                                 </div>
                             </div>
                         </div>
@@ -270,21 +274,6 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
     <script src="assets/js/theme.js"></script>
 
     <script>
-
-        $(document).ready(function () {
-            $.getJSON("dashboard_fetch.php", function (data) {
-                $("#todayRefills").attr("data-target", data.todayRefills);
-                $("#pendingRefills").attr("data-target", data.pendingRefills);
-                $("#upcomingRefills").attr("data-target", data.upcomingRefills);
-                $("#totalRefillAmount").attr("data-target", data.totalRefillAmount);
-                $("#monthSales").attr("data-target", data.monthSales);
-                $("#monthIncome").attr("data-target", data.monthIncome);
-                $("#totalSales").attr("data-target", data.totalSales);
-                $("#totalIncome").attr("data-target", data.totalIncome);
-                $("#totalCategory").attr("data-target", data.totalCategory);
-                $("#totalProducts").attr("data-target", data.totalProducts);
-            });
-        });
 
         $(window).on('scroll', function () {
             if ($(this).scrollTop() > 100) {
