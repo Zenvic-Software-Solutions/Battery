@@ -28,7 +28,7 @@ if ($searchValue !== '') {
 }
 
 // Total records (no filters)
-$totalResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM sales WHERE status = 'Active' AND current_status = 'Active'");
+$totalResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM sales WHERE status = 'Active' AND current_status = 'Active' AND next_refill_date <= DATE_ADD(CURDATE(), INTERVAL 5 DAY)");
 $total = mysqli_fetch_assoc($totalResult)['total'] ?? 0;
 
 // Filtered records (with search if applied)
