@@ -12,7 +12,7 @@ $selectBase = "
         s.id, s.customer_name, s.customer_phone, s.customer_address, s.next_refill_date, p.name AS product_name 
     FROM sales s
     LEFT JOIN product p ON p.id = s.product_id
-    WHERE s.status = 'Active' AND s.current_status = 'Active' AND s.next_refill_date <= DATE_ADD(CURDATE(), INTERVAL 5 DAY)
+    WHERE s.status = 'Active' AND s.current_status = 'Active' AND s.next_refill_date <= DATE_ADD(CURDATE(), INTERVAL 5 DAY) AND p.reminder_status = 'Active'
 ";
 
 // Search filter
@@ -28,7 +28,7 @@ if ($searchValue !== '') {
 }
 
 // Total records (no filters)
-$totalResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM sales WHERE status = 'Active' AND current_status = 'Active' AND next_refill_date <= DATE_ADD(CURDATE(), INTERVAL 5 DAY)");
+$totalResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM sales s LEFT JOIN product p ON p.id = s.product_id WHERE s.status = 'Active' AND s.current_status = 'Active' AND s.next_refill_date <= DATE_ADD(CURDATE(), INTERVAL 5 DAY) AND p.reminder_status = 'Active'");
 $total = mysqli_fetch_assoc($totalResult)['total'] ?? 0;
 
 // Filtered records (with search if applied)

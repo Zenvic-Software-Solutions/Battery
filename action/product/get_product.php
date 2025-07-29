@@ -31,7 +31,7 @@ $filtered = mysqli_fetch_assoc($filterQuery)['total'];
 
 // Main data query
 $query = mysqli_query($conn, "
-    SELECT p.id,  p.name, p.rate, p.refill_duration, c.name AS category_name
+    SELECT p.id,  p.name, p.rate, p.reminder_status, p.refill_duration, c.name AS category_name
     FROM product p
     LEFT JOIN category c ON c.id = p.cat_id
     WHERE p.status='Active' $searchSQL
@@ -49,6 +49,9 @@ while ($row = mysqli_fetch_assoc($query)) {
         "category_name" => htmlspecialchars($row['category_name']),
         "customer_rate" => "<span class='text-success fw-bold'>₹ " . number_format($row['rate'], 2) . "</span>",
         "refill_duration" => "<span class='text-danger fw-bold'>" . $row['refill_duration'] . " days</span>",
+        "reminder_status" => ($row['reminder_status'] === 'Active')
+                            ? "<span class='badge bg-success-subtle text-success fs-6'>Active</span>"
+                            : "<span class='badge bg-secondary-subtle text-secondary fs-6'>Inactive</span>",
         "action" => '
             <button class="btn p-0 border-0 bg-transparent me-2"
                     onclick="viewProduct(' . $row['id'] . ')"

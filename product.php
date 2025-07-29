@@ -69,6 +69,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                                 <th>Category</th>
                                                 <th>Price</th>
                                                 <th>Refill Duration</th>
+                                                <th>Reminder</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
@@ -129,14 +130,28 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                 </div>
                             </div>
 
-                            <!-- Customer Rate -->
-                            <div class="mb-3">
-                                <label for="customer-rate" class="form-label">Rate</label>
-                                <div class="input-group has-validation">
-                                    <span class="input-group-text">₹</span>
-                                    <input type="text" class="form-control" name="customer_rate" id="customer-rate" onkeyup="formatINR(this)" inputmode="decimal" required>
+                            <div class="row">
+                                <!-- Customer Rate -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="customer-rate" class="form-label">Rate</label>
+                                    <div class="input-group has-validation">
+                                        <span class="input-group-text">₹</span>
+                                        <input type="text" class="form-control" name="customer_rate" id="customer-rate" onkeyup="formatINR(this)" inputmode="decimal" required>
+                                        <div class="invalid-feedback">
+                                            Please enter customer price.
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                                <!-- Reminder Status -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="reminder-status" class="form-label">Reminder</label>
+                                    <select class="form-select" name="reminder_status" id="reminder-status" required>
+                                        <option value="Active" selected>Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
                                     <div class="invalid-feedback">
-                                        Please enter customer price.
+                                        Please select reminder status.
                                     </div>
                                 </div>
                             </div>
@@ -206,13 +221,27 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                                 <div class="invalid-feedback">Please enter a product name.</div>
                             </div>
 
-                            <!-- Customer Rate -->
-                            <div class="mb-3">
-                                <label for="edit-customer-rate" class="form-label">Rate</label>
-                                <div class="input-group has-validation">
-                                    <span class="input-group-text">₹</span>
-                                    <input type="text" class="form-control" name="customer_rate" id="edit-customer-rate" onkeyup="formatINR(this)" inputmode="decimal" required>
-                                    <div class="invalid-feedback">Please enter customer price.</div>
+                            <div class="row">
+                                <!-- Customer Rate -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit-customer-rate" class="form-label">Rate</label>
+                                    <div class="input-group has-validation">
+                                        <span class="input-group-text">₹</span>
+                                        <input type="text" class="form-control" name="customer_rate" id="edit-customer-rate" onkeyup="formatINR(this)" inputmode="decimal" required>
+                                        <div class="invalid-feedback">Please enter customer price.</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Reminder Status -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit-reminder-status" class="form-label">Reminder</label>
+                                    <select class="form-select" name="reminder_status" id="edit-reminder-status" required>
+                                        <option value="Active" selected>Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please select reminder status.
+                                    </div>
                                 </div>
                             </div>
 
@@ -279,13 +308,21 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                             <div class="col-1">:</div>
                             <div class="col-6 fw-bold text-success" id="view-customer-rate"></div>
                         </div>
-
+                        
                         <div class="row mb-3 align-items-center fs-5">
                             <div class="col-5 fw-semibold">
                                 <i class="mdi mdi-timer-sand me-1 text-warning"></i> Refill Duration
                             </div>
                             <div class="col-1">:</div>
                             <div class="col-6 text-danger" id="view-refill-duration"></div>
+                        </div>
+                        
+                        <div class="row mb-3 align-items-center fs-5">
+                            <div class="col-5 fw-semibold">
+                                <i class="mdi mdi-currency-inr me-1 text-secondary"></i> Reminder
+                            </div>
+                            <div class="col-1">:</div>
+                            <div class="col-6"><span class="badge bg-secondary-subtle text-secondary fs-6" id="view-reminder"></span></div>
                         </div>
 
                         <div class="row mb-3 align-items-center fs-5">
@@ -360,8 +397,9 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                     { data: 'serial', title: 'ID' },
                     { data: 'name', title: 'Product Name' },
                     { data: 'category_name', title: 'Category' },
-                    { data: 'customer_rate', title: 'Price', className: 'text-center'  },
-                    { data: 'refill_duration', title: 'Refill Duration', className: 'text-center'  },
+                    { data: 'customer_rate', title: 'Price', className: 'text-center' },
+                    { data: 'refill_duration', title: 'Refill Duration', className: 'text-center' },
+                    { data: 'reminder_status', title: 'Reminder', className: 'text-center' },
                     { data: 'action', title: 'Action', orderable: false, searchable: false }
                 ],
                 pageLength: 10,
@@ -395,6 +433,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                         $('#view-name').text(data.name);
                         $('#view-category').text(data.category_name);
                         $('#view-customer-rate').text('₹ ' + parseFloat(data.rate).toLocaleString('en-IN'));
+                        $('#view-reminder').text(data.reminder_status);
                         $('#view-refill-duration').text(data.refill_duration + ' days');
                         $('#view-description').text(data.description || '-');
                         // Show the modal
@@ -423,6 +462,7 @@ if (!isset($_SESSION['name']) || !isset($_SESSION['role'])) {
                         $('#edit-id').val(id);
                         $('#edit-name').val(data.name);
                         $('#edit-customer-rate').val(data.rate);
+                        $('#edit-reminder-status').val(data.reminder_status);
                         $('#edit-refill-duration').val(data.refill_duration);
                         $('#edit-description').val(data.description);
                         formatINR($('#edit-customer-rate')[0]);

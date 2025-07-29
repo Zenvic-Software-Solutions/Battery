@@ -4,6 +4,7 @@ include '../../db/dbConnection.php';
 $name = trim($_POST['name']);
 $catId = intval($_POST['category_id']);
 $customerRate = $_POST['customer_rate'];
+$reminder = $_POST['reminder_status'];
 $refillDuration = intval($_POST['refill_duration']);
 $description = trim($_POST['description']);
 $imagePath = '';
@@ -19,9 +20,9 @@ if ($checkName->num_rows > 0) {
 }
 
 // Insert the product
-$insert = $conn->prepare("INSERT INTO product (name, cat_id, rate, refill_duration, description)
-                          VALUES (?, ?, ?, ?, ?)");
-$insert->bind_param("siiis", $name, $catId, $customerRate, $refillDuration, $description);
+$insert = $conn->prepare("INSERT INTO product (name, cat_id, rate, reminder_status, refill_duration, description)
+                          VALUES (?, ?, ?, ?, ?, ?)");
+$insert->bind_param("siisis", $name, $catId, $customerRate, $reminder, $refillDuration, $description);
 
 if ($insert->execute()) {
     echo "Product added successfully.";

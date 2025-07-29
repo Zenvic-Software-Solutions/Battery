@@ -15,7 +15,7 @@ $auth = [
 
 $today = date('Y-m-d');
 
-$sql = "SELECT COUNT(*) as due_count FROM sales WHERE DATE(next_refill_date) = '$today' AND status = 'Active' AND current_status = 'Active'";
+$sql = "SELECT COUNT(*) as due_count FROM sales s LEFT JOIN product p ON p.id = s.product_id WHERE DATE(s.next_refill_date) = '$today' AND s.status = 'Active' AND s.current_status = 'Active' AND p.reminder_status = 'Active'";
 $result = mysqli_query($conn, $sql);
 $row = mysqli_fetch_assoc($result);
 $dueCount = (int)$row['due_count'];

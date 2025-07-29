@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
             'name' => $row['name'],
             'category_name' => $row['category_name'],
             'rate' => $row['rate'],
+            'reminder_status' => $row['reminder_status'],
             'refill_duration' => $row['refill_duration'],
             'description' => $row['description']
         ]);
